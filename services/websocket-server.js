@@ -1,3 +1,4 @@
+const axios = require("axios");
 const WebSocket = require(`ws`);
 
 class WebSoketServer {
@@ -12,6 +13,15 @@ class WebSoketServer {
       console.log(`WebSoketServer socket connection`);
 
       socket.on("message", async (message) => {
+        try {
+          const messageObj = JSON.parse(message); //?
+          if (messageObj.type === "CONNECT") {
+            await strapi.services["subscriber"].create({ name: "ddddd" });
+          }
+        } catch (error) {
+          error; //?
+        }
+
         socket.send(message);
       });
 
