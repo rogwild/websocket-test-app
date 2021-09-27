@@ -1,24 +1,33 @@
 const WebSocket = require(`ws`);
-const fetch = require(`node-fetch`);
-const R = require(`ramda`);
+const axios = require(`axios`);
+const R = require("ramda");
 
 const wsCreateServer = async ({
-  host = `localhost`,
-  port = `1337`,
+  host = "localhost",
+  port = "1337",
   endpoints,
-  stayOpen = true,
+  request,
+  response,
+  stayOpen = false,
   onConnection = () => {},
 }) => {
+  await new Promise((resolve) => {
+    const ti = setInterval(async () => {
+      await axios(`http://${host}:${port}`)
+        .then(() => {})
+        .catch((err) => {
+          clearInterval(ti);
+          resolve();
+        });
+    }, 500);
+  });
   const wss = new WebSocket.Server({ host, port });
-  console.log(`message`);
 
   wss.on(`connection`, (socket) => {
-    onConnection();
-    socket.on(`message`, (message) => {
-      console.log(`🚀 ~ socket.on ~ message`, message);
-
-      if (endpoints) {
-        try {
+    try {
+      onConnection();
+      socket.on(`message`, (message) => {
+        if (endpoints) {
           let messageObject = JSON.parse(message);
 
           for (endpoint of endpoints) {
@@ -28,23 +37,25 @@ const wsCreateServer = async ({
                 socket.close();
                 wss.close();
               }
-            } else {
-              socket.send(
-                JSON.socket({ type: `ERROR`, message: `Wrong message` })
-              );
-              wss.close();
             }
           }
-        } catch (error) {
-          const message = JSON.stringify({
-            type: `ERROR`,
-            message: error.message,
-          });
-
-          socket.send(message);
         }
-      }
-    });
+
+        if (message === request) {
+          socket.send(response);
+          if (!stayOpen) {
+            socket.close();
+            wss.close();
+          }
+        }
+        if (message === JSON.stringify({ type: "STOP" })) {
+          socket.close();
+          wss.close();
+        }
+      });
+    } catch (error) {
+      socket.send(error);
+    }
   });
 
   wss.on(`error`, (error) => {
@@ -58,10 +69,10 @@ const wsCreateServer = async ({
   return async () => await closeWsServer({ host, port });
 };
 
-async function closeWsServer({ host = `localhost`, port = `1337` }) {
+async function closeWsServer({ host = "localhost", port = "1337" }) {
   const endpoint = `${host}:${port}`;
 
-  await fetch(`http://${endpoint}`)
+  await axios(`http://${endpoint}`)
     .then(() => {
       wsCreateAndSendMessage(
         JSON.stringify({ type: `STOP` }),
@@ -83,7 +94,7 @@ async function closeWsServer({ host = `localhost`, port = `1337` }) {
 
   await new Promise((resolve) => {
     const tm = setTimeout(async () => {
-      await fetch(endpoint)
+      await axios(endpoint)
         .then((res) => {
           res; //?
         })
@@ -104,7 +115,7 @@ async function closeWsServer({ host = `localhost`, port = `1337` }) {
  */
 const wsCreateAndSendMessage = (
   message,
-  host = `ws://localhost:1337`,
+  host = "ws://localhost:1337",
   timeout
 ) =>
   new Promise(async (resolve, reject) => {
@@ -146,6 +157,25 @@ async function waitForResponse(cb, timeout = 200) {
     }, timeout);
   });
 }
+
+// console.log(
+//   JSON.stringify({
+
+//     type: "CONNECT",
+//     payload: {
+//       exchanges: [
+//         {
+//           id: 74,
+//           exchange: "binance",
+//           publicKey:
+//             "ADrY1a8Xlqmkl7auCyXCViddJiQs6DgnbGePEk4mEkOLNPmVrUbNVAKbxTMfumYQ",
+//           secretKey:
+//             "lsmxIP6jtQuoBrhImtkmGRPPqykLZx7S290U3zsd1NFRX6RXucX6pzi0iK7QU9ff",
+//         },
+//       ],
+//     },
+//   })
+// );
 
 module.exports = {
   waitForResponse,
