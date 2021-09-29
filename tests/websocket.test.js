@@ -83,7 +83,7 @@ describe(`WebSocket`, () => {
     });
   });
 
-  describe.only("GET_DATA", () => {
+  describe("GET_DATA", () => {
     it("должен запрашивать данные с coingecko, отдавать полученные данные и записывать запрос в историю", async () => {
       // Запрос на подключение пользователя
       const subscriberName = `User#${parseInt(Math.random() * 10000)}`;
@@ -94,7 +94,7 @@ describe(`WebSocket`, () => {
         },
       }); //?
 
-      // Запрос на получение данных
+      // Запрос на получение данных, передаем мы symbol
       const getDataMessage = JSON.stringify({
         type: "GET_DATA",
         payload: {
@@ -118,7 +118,7 @@ describe(`WebSocket`, () => {
       socket.on("message", (message) => responses.push(JSON.parse(message)));
 
       // От имени пользователя отправляем запрос на получение данных
-      socket.send(getDataMessage); //
+      socket.send(getDataMessage);
 
       // Ожидаем пока сервис ответит
       await tdd.waitForResponse(() => {}, 2000);
@@ -141,6 +141,70 @@ describe(`WebSocket`, () => {
       expect(requestedSubscriber.requests.length).toEqual(1);
       expect(spyToDbQueryRequestCreate).toHaveBeenCalled();
       axios.mockRestore();
+    });
+  });
+
+  describe("HISTORY", () => {
+    it("должен возвращать массив с запросами пользователя", async () => {
+      // Запрос на создание пользователя
+      const connectMessage = JSON.stringify({
+        type: "CONNECT",
+        payload: {
+          name: `User#${parseInt(Math.random() * 10000)}`,
+        },
+      }); //?
+
+      // Отправляем запрос, чтобы пользователь был добавлен в БД
+      await tdd.wsCreateAndSendMessage(connectMessage);
+
+      // Запросы на получение данных, передаем мы symbol
+      const getDataMessage1 = JSON.stringify({
+        type: "GET_DATA",
+        payload: {
+          symbol: "zefu",
+        },
+      }); //?
+      const getDataMessage2 = JSON.stringify({
+        type: "GET_DATA",
+        payload: {
+          symbol: "btc",
+        },
+      }); //?
+
+      // Запрос на получение history
+      const getHistoryMessage = JSON.stringify({
+        type: "HISTORY",
+        payload: {
+          types: ["GET_DATA"],
+        },
+      });
+
+      // Отправляем запрос на подключение и берем объект сокета, через него мы отправим второй запрос
+      const { socket } = await tdd.wsCreateAndSendMessage(connectMessage); //?
+
+      // От имени пользователя отправляем запрос на получение данных
+      socket.send(getDataMessage1);
+
+      // Ожидаем пока сервис ответит
+      await tdd.waitForResponse(() => {}, 2000);
+
+      // От имени пользователя отправляем запрос на получение данных
+      socket.send(getDataMessage2);
+
+      // Ожидаем пока сервис ответит
+      await tdd.waitForResponse(() => {}, 2000);
+
+      // Сохраняем ответы с сокета в массив, чтобы потом проверить их
+      const responses = [];
+      socket.on("message", (message) => responses.push(JSON.parse(message)));
+      // От имени пользователя отправляем запрос на получение данных
+      socket.send(getHistoryMessage);
+
+      // Ожидаем пока сервис ответит
+      await tdd.waitForResponse(() => {}, 2000);
+
+      expect(responses[0].type).toEqual("HISTORY");
+      expect(responses[0].payload.GET_DATA.length).toEqual(2);
     });
   });
 });
