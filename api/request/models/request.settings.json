@@ -2,12 +2,24 @@
   "kind": "collectionType",
   "collectionName": "requests",
   "info": {
-    "name": "Request"
+    "name": "Request",
+    "description": ""
   },
   "options": {
     "increments": true,
     "timestamps": true,
     "draftAndPublish": false
   },
-  "attributes": {}
+  "attributes": {
+    "symbol": {
+      "type": "string"
+    },
+    "subscriber": {
+      "model": "subscriber",
+      "via": "requests"
+    },
+    "type": {
+      "type": "string"
+    }
+  }
 }

@@ -1,6 +1,7 @@
 "use strict";
 
 const { WebSoketServer } = require("../../services/websocket-server");
+const { MessageHandler } = require("../../services/message-handler");
 
 /**
  * An asynchronous bootstrap function that runs before
@@ -14,9 +15,7 @@ const { WebSoketServer } = require("../../services/websocket-server");
 
 module.exports = async () => {
   try {
-    strapi; //?
     const WSServer = new WebSoketServer({ server: strapi.server });
-    await WSServer.create();
   } catch (err) {
     console.error(err);
   }

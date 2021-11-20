@@ -10,5 +10,13 @@
     "timestamps": true,
     "draftAndPublish": false
   },
-  "attributes": {}
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "requests": {
+      "via": "subscriber",
+      "collection": "request"
+    }
+  }
 }

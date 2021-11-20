@@ -521,11 +521,51 @@
         "properties": {
           "id": {
             "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "requests": {
+            "type": "array",
+            "items": {
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "symbol": {
+                  "type": "string"
+                },
+                "subscriber": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "created_by": {
+                  "type": "string"
+                },
+                "updated_by": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
       "NewSubscriber": {
         "properties": {
+          "name": {
+            "type": "string"
+          },
+          "requests": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "created_by": {
             "type": "string"
           },
