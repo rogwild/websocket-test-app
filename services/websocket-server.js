@@ -1,6 +1,6 @@
 'use strict'
 
-const { WebSocket } = require(`ws`);
+const WebSocket = require(`ws`);
 const { MessageHandler } = require("./message-handler");
 const R = require(`ramda`);
 const axios = require("axios");
@@ -11,7 +11,7 @@ class WebSoketServer {
   }
 
   create({ server }) {
-    const wss = new WebSocket.Server({ server });
+    const wss = new WebSocket({ server });
 
     wss.on('connection', async (ws) => {
       strapi.log.info('New connection');
