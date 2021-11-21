@@ -11,7 +11,7 @@ class WebSoketServer {
   }
 
   create({ server }) {
-    const wss = new WebSocket({ server });
+    const wss = new WebSocket.Server({ server });
 
     wss.on('connection', async (ws) => {
       strapi.log.info('New connection');
