@@ -1,0 +1,20 @@
+{
+  "kind": "collectionType",
+  "collectionName": "coins",
+  "info": {
+    "name": "coin"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "symbol": {
+      "type": "string"
+    },
+    "uid": {
+      "type": "string"
+    }
+  }
+}

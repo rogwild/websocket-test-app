@@ -20,7 +20,6 @@ class MessageHandler {
       throw new Error("Invalid message type");
     }
 
-    strapi.log.info("Done!");
     return messageObject;
   }
 

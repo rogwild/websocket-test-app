@@ -58,14 +58,16 @@ const eventHandler = {
         subscriber: subscriber
       });
 
-      await axios.get(`https://api.coingecko.com/api/v3/coins/${symbol}`, { })
-        .then((response) => {
+      const coinUid = await strapi.query('coin').findOne({ symbol: symbol });
+
+      axios.get(`https://api.coingecko.com/api/v3/coins/${coinUid}`, { })
+        .then(async (response) => {
           responseMessage = {
             type: "GET_DATA",
             payload: response.data
           };
         })
-        .catch((error) => {
+        .catch(async (error) => {
           strapi.log.error(`${error}`);
           responseMessage = {
             type: "ERROR",
@@ -92,18 +94,22 @@ const eventHandler = {
 
     let response = {};
     try {
-      const subscriber = strapi.query('subscriber').findOne({name: handler.userName});
+      const subscriber = strapi.query('subscriber').findOne({ name: handler.userName });
+      const requests = strapi.query('request').find({
+        subscriber: subscriber,
+        type: message.payload.types
+      });
 
-      if (!tools.isEmpty(subscriber))
+      if (!R.isNil(subscriber))
         response = {
           type: "HISTORY",
-          payload: subscriber.requests
+          payload: requests
         }
       else
         response = {
           type: "ERROR",
           payload: {
-            message: "Can't find the user in HISTORY-controller"
+            message: "Can't find the user in HISTORY controller"
           }
         }
     }
@@ -111,7 +117,7 @@ const eventHandler = {
       response = {
         type: "ERROR",
         payload: {
-          message: e
+          message: e.message
         }
       }
     }

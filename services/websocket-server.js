@@ -1,24 +1,17 @@
 'use strict'
 
-const WebSocket = require(`ws`);
+const { WebSocket } = require(`ws`);
 const { MessageHandler } = require("./message-handler");
-
+const R = require(`ramda`);
+const axios = require("axios");
 
 class WebSoketServer {
-  constructor({ server }) {
-    this.create({ server });
+  constructor() {
+   
   }
 
   create({ server }) {
     const wss = new WebSocket.Server({ server });
-    
-    // get coins list from coingecko
-    axios.get({
-
-    })
-    .then()
-    .catch()
-    .then();
 
     wss.on('connection', async (ws) => {
       strapi.log.info('New connection');
@@ -45,6 +38,7 @@ class WebSoketServer {
 
     this.server = wss;
   }
+
 }
 
 module.exports = { WebSoketServer };

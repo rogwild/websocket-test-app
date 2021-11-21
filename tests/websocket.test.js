@@ -3,7 +3,7 @@ const axios = require("axios");
 
 beforeAll(async () => {
   await tdd.setupStrapi();
-  await tdd.createHttpServer();
+  //await tdd.createHttpServer();
 });
 
 describe(`WebSocket`, () => {

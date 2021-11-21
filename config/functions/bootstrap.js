@@ -15,7 +15,8 @@ const { MessageHandler } = require("../../services/message-handler");
 
 module.exports = async () => {
   try {
-    const WSServer = new WebSoketServer({ server: strapi.server });
+    const WSServer = new WebSoketServer();
+    await WSServer.create({ server: strapi.server });
   } catch (err) {
     console.error(err);
   }
